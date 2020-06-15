@@ -1,0 +1,36 @@
+---
+infra:
+  location: francecentral
+  resource_group: networkascode
+  username: azureuser
+  password: S3cureAzureP4$$w0rd
+  
+  apps:
+    linux:
+      global:
+        - name: ntp
+          state: latest
+      dockerserver:
+        apt:
+          - name: docker-ce
+            state: latest
+          - name: python-pip
+            state: latest
+        pip:
+          - name: docker
+          - name: docker-compose
+  
+  repos:
+    linux:
+      global:
+      dockerserver:
+        - url: https://download.docker.com/linux/ubuntu xenial stable
+          state: present
+          
+  repo_keys:
+    linux:
+      global:
+      dockerserver:
+        - url: https://download.docker.com/linux/ubuntu/gpg
+          state: present
+          

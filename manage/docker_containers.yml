@@ -1,0 +1,26 @@
+---
+- name: Configure Docker containers
+  hosts: dockerserver
+  gather_facts: false
+  become: yes
+  vars_files:
+    - vars.yml
+    
+  tasks:
+    - name: Create a directory if it does not exist
+      file:
+        path: "{{ item.path }}"
+        state: directory
+        mode: "{{ item.mode }}"
+      with_items: "{{ linux[inventory_hostname].folders }}"
+        
+    - name: Copy files to remote directory
+      copy:
+        src: "{{ item.src_name }}"
+        dest: "{{ item.dst_name }}"
+      with_items: "{{ linux[inventory_hostname].files }}"
+        
+    - name: Bring Up Git Container
+      docker_compose:
+        project_src: "{{ item.path }}"
+      with_items: "{{ linux[inventory_hostname].containers }}"

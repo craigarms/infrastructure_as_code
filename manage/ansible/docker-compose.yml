@@ -1,0 +1,12 @@
+version: '2'
+
+services:
+  ansible:
+    build: .
+    volumes:
+      - /home/container/ansible/playbooks:/playbooks
+      - /home/container/ansible/backups:/backups
+      - /home/container/ansible/backups_test:/backups_test
+    environment:
+      - ANSIBLE_HOST_KEY_CHECKING='False'
+

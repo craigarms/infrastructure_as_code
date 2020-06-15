@@ -1,0 +1,45 @@
+---
+- hosts: sw_ios
+  gather_facts: false
+  connection: local
+
+  tasks:
+    - name: save config
+      ios_command:
+        commands:
+          - write mem
+        timeout: 60
+      vars:
+        ansible_command_timeout: 60
+
+    - name: show run
+      ios_command:
+        commands:
+          - show run | e NVRAM
+        timeout: 60
+      register: shrun
+      vars:
+        ansible_command_timeout: 60
+
+    - name: show inv
+      ios_command:
+        commands: show inventory
+      register: shinv
+
+    - name: show version
+      ios_command:
+        commands: show version | e ptime|restarted
+      register: shver
+
+    - blockinfile:
+        block: "{{ item.value }}"
+        dest: "/backups/{{ inventory_hostname }}.txt"
+        marker: "# {mark} ANSIBLE MANAGED BLOCK {{item.variable }}"
+        create: yes
+      with_items:
+        - variable: config
+          value: "{{ shrun.stdout[0] }}"
+        - variable: inventory
+          value: "{{ shinv.stdout[0] }}"
+        - variable: version
+          value: "{{ shver.stdout[0] }}"

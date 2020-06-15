@@ -1,0 +1,50 @@
+version: '3.5'
+
+services:
+  drone-server:
+    image: drone/drone:1
+    ports:
+      - 8000:80
+      - 9000:443
+    networks:
+      - drone
+    volumes:
+      - ./drone-data:/var/lib/drone/
+      - /var/run/docker.sock:/var/run/docker.sock
+    env_file:
+      - ./drone.env
+    restart: always
+    environment:
+      - DRONE_GITHUB_SKIP_VERIFY=true
+      - DRONE_AGENTS_ENABLED=true
+      - DRONE_SERVER_HOST=localhost:8000
+      - DRONE_RPC_PROTO=http
+      - DRONE_TLS_AUTOCERT=false
+      - DRONE_OPEN=false
+      - DRONE_HOST=http://localhost:8000
+      - DRONE_GOGS_SERVER=http://localhost:8081
+      - DRONE_RPC_SECRET=this_is_a_secret
+
+
+  drone-runner:
+    image: drone/drone-runner-docker:1
+    restart: always
+    depends_on:
+      - drone-server
+    networks:
+      - drone
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    env_file:
+      - ./drone.env
+    environment:
+      - DRONE_RPC_PROTO=http
+      - DRONE_RPC_HOST=drone-server:8000
+      - DRONE_RPC_SECRET=this_is_a_secret
+      - DRONE_RUNNER_CAPACITY=2
+      - DRONE_RUNNER_NAME=${HOSTNAME} 
+
+
+networks:
+  drone:
+    name: drone_network

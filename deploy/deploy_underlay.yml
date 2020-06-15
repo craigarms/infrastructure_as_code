@@ -1,0 +1,92 @@
+---
+- name: Create Network Lab
+  hosts: localhost
+  gather_facts: false
+  connection: local
+  vars:
+    resource_group: networkascode
+    vm_name: networkascodevm
+    vm_user: azureuser
+    vm_password: MyPassword123!!!
+    vn_name: vn001
+    subnet_name: subnet001
+    location: francecentral
+
+  tasks:
+    - name: create Azure resource group
+      azure_rm_resourcegroup:
+        name: "{{ resource_group }}"
+        location: '{{ location }}'
+        state: present
+
+    - name: Create storage account
+      azure_rm_storageaccount:
+        resource_group: "{{ resource_group }}"
+        name: "{{ resource_group }}"
+        account_type: Standard_LRS
+    
+    - name: Create virtual network
+      azure_rm_virtualnetwork:
+        resource_group: "{{ resource_group }}"
+        name: "{{ vn_name }}"
+        address_prefixes: "10.10.0.0/16"
+    
+    - name: Add subnet
+      azure_rm_subnet:
+        resource_group: "{{ resource_group }}"
+        name: "{{ subnet_name }}"
+        address_prefix: "10.10.0.0/24"
+        virtual_network: "{{ vn_name }}"
+    
+    - name: Create public ip
+      azure_rm_publicipaddress:
+        resource_group: "{{ resource_group }}"
+        allocation_method: Static
+        name: publicip_{{ vm_name }}
+    
+    - name: Create security group that allows SSH
+      azure_rm_securitygroup:
+        resource_group: "{{ resource_group }}"
+        name: secgroup001
+        rules:
+          - name: SSH
+            protocol: Tcp
+            destination_port_range: 22
+            access: Allow
+            priority: 201
+            direction: Inbound
+    
+    - name: Create NIC
+      azure_rm_networkinterface:
+        resource_group: "{{ resource_group }}"
+        name: nic_{{ vm_name }}
+        virtual_network: "{{ vn_name }}"
+        subnet: "{{ subnet_name }}"
+        public_ip_name: publicip_{{ vm_name }}
+        security_group: secgroup001
+    
+    - name: Create virtual machine
+      azure_rm_virtualmachine:
+        resource_group: "{{ resource_group }}"
+        name: "{{ vm_name }}"
+        vm_size: Standard_D1_v2
+        storage_account: "{{ resource_group }}"
+        storage_container: "{{ vm_name }}"
+        storage_blob: "{{ vm_name }}.vhd"
+        admin_username: "{{ vm_user }}"
+        admin_password: "{{ vm_password }}"
+        network_interfaces: nic_{{ vm_name }}
+        ssh_public_keys:
+          - path: /home/{{ vm_user }}/.ssh/authorized_keys
+            key_data: "{{ item }}"
+        tags:
+          application: docker
+          os: ubuntu
+          system: linux
+        image:
+          offer: UbuntuServer
+          publisher: Canonical
+          sku: '18.04-LTS'
+          version: latest
+      with_file:
+        - "~/.ssh/id_rsa.pub"

@@ -1,0 +1,21 @@
+version: '3.7'
+
+services:
+  gogs:
+    image: gogs/gogs:latest
+    volumes:
+      - "/home/containers/gogs/data:/data"
+      - "/home/containers/gogs/backup:/backup"
+    ports:
+      - "8081:80/tcp"
+      
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: changeme
+      PGDATA: /data/postgres
+    volumes:
+       - "/home/containers/gogs/postgres:/data/postgres"
+    ports:
+      - "5432:5432"

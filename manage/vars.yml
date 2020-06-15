@@ -1,0 +1,43 @@
+---
+linux:
+  dockerserver:
+    folders:
+      - path: /home/containers
+        mode: "755"
+      - path: /home/containers/git
+        mode: "755"
+      - path: /home/containers/gitweb
+        mode: "755"
+      - path: /home/containers/ansible
+        mode: "755"
+      - path: /home/containers/ansible/playbooks
+        mode: "755"
+      - path: /home/containers/gogs/
+        mode: "755"
+      - path: /home/containers/drone
+        mode: "755"
+    
+    files:
+      - src_name: gitweb/Dockerfile
+        dst_name: /home/containers/gitweb/
+      - src_name: gitweb/docker-compose.yml
+        dst_name: /home/containers/gitweb/
+        
+      - src_name: ansible/Dockerfile
+        dst_name: /home/containers/ansible/
+      - src_name: ansible/docker-compose.yml
+        dst_name: /home/containers/ansible/
+      - src_name: ansible/backup-ios.yml
+        dst_name: /home/containers/ansible/playbooks/
+        
+      - src_name: gogs/docker-compose.yml
+        dst_name: /home/containers/gogs/
+        
+      - src_name: drone/docker-compose.yml
+        dst_name: /home/containers/drone/
+        
+    containers:
+      - path: /home/containers/gitweb/
+      - path: /home/containers/gogs/
+      - path: /home/containers/ansible/
+      - path: /home/containers/drone/
