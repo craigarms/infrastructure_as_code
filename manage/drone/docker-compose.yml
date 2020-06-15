@@ -11,8 +11,6 @@ services:
     volumes:
       - ./drone-data:/var/lib/drone/
       - /var/run/docker.sock:/var/run/docker.sock
-    env_file:
-      - ./drone.env
     restart: always
     environment:
       - DRONE_GITHUB_SKIP_VERIFY=true
@@ -35,8 +33,6 @@ services:
       - drone
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    env_file:
-      - ./drone.env
     environment:
       - DRONE_RPC_PROTO=http
       - DRONE_RPC_HOST=drone-server:8000

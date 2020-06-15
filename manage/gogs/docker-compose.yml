@@ -7,7 +7,7 @@ services:
       - "/home/containers/gogs/data:/data"
       - "/home/containers/gogs/backup:/backup"
     ports:
-      - "8081:80/tcp"
+      - "8081:3000/tcp"
       
   postgres:
     image: postgres
