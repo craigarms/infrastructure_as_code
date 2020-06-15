@@ -20,7 +20,7 @@
         dest: "{{ item.dst_name }}"
       with_items: "{{ linux[inventory_hostname].files }}"
         
-    - name: Bring Up Git Container
+    - name: Bring Up Containers
       docker_compose:
         project_src: "{{ item.path }}"
       with_items: "{{ linux[inventory_hostname].containers }}"
